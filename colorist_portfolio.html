@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Colorist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: #fff;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .contact-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact-link:hover {
+            opacity: 0.7;
+        }
+
+        /* Hero */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(45deg, #111, #000);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 100;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        /* Gallery */
+        .gallery {
+            padding: 0;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .masonry {
+            column-count: 3;
+            column-gap: 20px;
+            padding: 2rem;
+        }
+
+        .media-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .media-item:hover {
+            transform: scale(1.02);
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: filter 0.3s ease;
+        }
+
+        .media-item:hover img,
+        .media-item:hover video {
+            filter: brightness(1.1);
+        }
+
+        /* Video specific styling */
+        .media-item video {
+            background: #111;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .media-item:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-overlay::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 16px solid #000;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            margin-left: 3px;
+        }
+
+        /* Modal for fullscreen viewing */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            margin: 2% auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 96%;
+        }
+
+        .modal img,
+        .modal video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .modal video {
+            background: #000;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: 300;
+            cursor: pointer;
+            z-index: 2001;
+            transition: opacity 0.3s ease;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        /* Navigation arrows */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .prev {
+            left: 40px;
+        }
+
+        .next {
+            right: 40px;
+        }
+
+        /* Contact section */
+        .contact {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: #111;
+        }
+
+        .contact h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .contact a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact a:hover {
+            opacity: 0.7;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 1024px) {
+            .masonry {
+                column-count: 2;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+                letter-spacing: 2px;
+            }
+
+            .masonry {
+                column-count: 1;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1% auto;
+                height: 98%;
+            }
+
+            .close {
+                top: 10px;
+                right: 20px;
+                font-size: 30px;
+            }
+
+            .nav-arrow {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .prev {
+                left: 20px;
+            }
+
+            .next {
+                right: 20px;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#" class="logo">YOUR NAME</a>
+            <a href="#contact" class="contact-link">CONTACT</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div>
+            <h1>COLORIST</h1>
+            <p>Visual Storytelling</p>
+        </div>
+    </section>
+
+    <section class="gallery">
+        <div class="masonry" id="gallery">
+            <!-- Video Examples -->
+            <div class="media-item" data-type="video">
+                <video poster="https://via.placeholder.com/400x600/ff4444/ffffff?text=Video+1" preload="metadata">
+                    <source src="#" type="video/mp4">
+                </video>
+                <div class="play-overlay"></div>
+            </div>
+
+            <!-- Photo Examples -->
+            <div class="media-item" data-type="image">
+                <img src="https://via.placeholder.com/400x500/2a5298/ffffff?text=Before+%2F+After" alt="Color grading work">
+            </div>
+
+            <div class="media-item" data-type="video">
+                <video poster="https://via.placeholder.com/400x700/8b5a2b/ffffff?text=Video+2" preload="metadata">
+                    <source src="#" type="video/mp4">
+                </video>
+                <div class="play-overlay"></div>
+            </div>
+
+            <div class="media-item" data-type="image">
+                <img src="https://via.placeholder.com/400x300/4a7c59/ffffff?text=Commercial" alt="Color grading work">
+            </div>
+
+            <div class="media-item" data-type="image">
+                <img src="https://via.placeholder.com/400x600/7b68ee/ffffff?text=Film+Work" alt="Color grading work">
+            </div>
+
+            <div class="media-item" data-type="video">
+                <video poster="https://via.placeholder.com/400x400/dc143c/ffffff?text=Video+3" preload="metadata">
+                    <source src="#" type="video/mp4">
+                </video>
+                <div class="play-overlay"></div>
+            </div>
+
+            <div class="media-item" data-type="image">
+                <img src="https://via.placeholder.com/400x550/ff6347/ffffff?text=Music+Video" alt="Color grading work">
+            </div>
+
+            <div class="media-item" data-type="image">
+                <img src="https://via.placeholder.com/400x450/20b2aa/ffffff?text=Documentary" alt="Color grading work">
+            </div>
+
+            <div class="media-item" data-type="video">
+                <video poster="https://via.placeholder.com/400x500/9370db/ffffff?text=Video+4" preload="metadata">
+                    <source src="#" type="video/mp4">
+                </video>
+                <div class="play-overlay"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <h2>GET IN TOUCH</h2>
+        <a href="mailto:your.email@example.com">your.email@example.com</a>
+    </section>
+
+    <!-- Modal for fullscreen viewing -->
+    <div id="modal" class="modal">
+        <span class="close">&times;</span>
+        <button class="nav-arrow prev">&#8249;</button>
+        <button class="nav-arrow next">&#8250;</button>
+        <div class="modal-content">
+            <img id="modal-img" style="display: none;">
+            <video id="modal-video" controls style="display: none;">
+                <source id="modal-video-source" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalVideo = document.getElementById('modal-video');
+        const modalVideoSource = document.getElementById('modal-video-source');
+        const closeBtn = document.querySelector('.close');
+        const prevBtn = document.querySelector('.prev');
+        const nextBtn = document.querySelector('.next');
+        const mediaItems = document.querySelectorAll('.media-item');
+        
+        let currentIndex = 0;
+
+        // Open modal
+        mediaItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                currentIndex = index;
+                openModal(item);
+            });
+        });
+
+        function openModal(item) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            if (item.dataset.type === 'video') {
+                const video = item.querySelector('video');
+                modalImg.style.display = 'none';
+                modalVideo.style.display = 'block';
+                modalVideoSource.src = video.querySelector('source').src || '#';
+                modalVideo.load();
+            } else {
+                const img = item.querySelector('img');
+                modalVideo.style.display = 'none';
+                modalImg.style.display = 'block';
+                modalImg.src = img.src;
+            }
+        }
+
+        // Close modal
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            modalVideo.pause();
+        }
+
+        // Navigation
+        prevBtn.addEventListener('click', () => {
+            currentIndex = currentIndex > 0 ? currentIndex - 1 : mediaItems.length - 1;
+            openModal(mediaItems[currentIndex]);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = currentIndex < mediaItems.length - 1 ? currentIndex + 1 : 0;
+            openModal(mediaItems[currentIndex]);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (modal.style.display === 'block') {
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowLeft') prevBtn.click();
+                if (e.key === 'ArrowRight') nextBtn.click();
+            }
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(0, 0, 0, 0.95)';
+            } else {
+                header.style.background = 'rgba(0, 0, 0, 0.8)';
+            }
+        });
+    </script>
+</body>
+</html>
